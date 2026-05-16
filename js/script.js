@@ -79,9 +79,9 @@ function displayMovies(movies) {
             </div>
         `;
         
-        card.addEventListener('click', () => {
-            alert(`${movie.title}\n${movie.overview || 'Tidak ada sinopsis'}`);
-        });
+       card.addEventListener('click', () => {
+            window.location.href = `detailfilm.html?id=${movie.id}`;
+    });
         
         movieGrid.appendChild(card);
     });

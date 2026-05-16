@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detail Film | MovieSearch</title>
+    <link rel="stylesheet" href="css/detailfilm.css">
+</head>
+<body>
+    <div class="container">
+        <button id="backBtn" class="btn-back">← Kembali ke Beranda</button>
+
+        <div id="detailContent" class="detail-card">
+            <!-- Loading state -->
+            <div id="loadingDetail" class="loading">
+                <div class="spinner"></div>
+                <p>Memuat detail film...</p>
+            </div>
+
+            <!-- Error state -->
+            <div id="errorDetail" class="error hidden">
+                <p>Gagal memuat detail film. Coba lagi.</p>
+            </div>
+
+            <!-- Detail content (hidden dulu) -->
+            <div id="movieDetail" class="movie-detail hidden">
+                <div class="detail-poster">
+                    <img id="posterImg" src="" alt="Poster">
+                </div>
+                <div class="detail-info">
+                    <h1 id="movieTitle"></h1>
+                    <div class="detail-meta">
+                        <span id="movieYear"></span>
+                        <span id="movieRuntime"></span>
+                        <span id="movieRating">⭐ </span>
+                    </div>
+                    <div class="detail-genres" id="movieGenres"></div>
+                    <h3>Sinopsis</h3>
+                    <p id="movieOverview"></p>
+                    <h3>Informasi Lain</h3>
+                    <ul class="info-list">
+                        <li><strong>Status:</strong> <span id="movieStatus"></span></li>
+                        <li><strong>Bahasa Asli:</strong> <span id="movieLanguage"></span></li>
+                        <li><strong>Tanggal Rilis:</strong> <span id="movieReleaseDate"></span></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/detailfilm.js"></script>
+</body>
+</html>
