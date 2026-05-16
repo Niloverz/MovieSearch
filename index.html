@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Search App | Niloverz</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Cari Film</h1>
+            <p class="subtitle">Temukan informasi film favoritmu</p>
+        </header>
+
+        <div class="search-section">
+            <input type="text" id="searchInput" placeholder="Search..." autocomplete="off">
+            <button id="searchBtn">Cari</button>
+        </div>
+
+        <div id="loadingState" class="loading hidden">
+            <div class="spinner"></div>
+            <p>Mencari film...</p>
+        </div>
+
+        <div id="errorState" class="error hidden">
+            <p>Film tidak ditemukan. Coba kata kunci lain.</p>
+        </div>
+
+        <div id="movieGrid" class="movie-grid">
+        </div>
+    </div>
+
+    <script src="js/script.js"></script>
+</body>
+</html>
