@@ -1,4 +1,4 @@
-const API_KEY = 'API_KEY'; 
+const API_KEY = '83469d836d083c530d69cb99ea058b66'; 
 const BASE_URL = 'https://api.themoviedb.org/3';
 const IMAGE_URL = 'https://image.tmdb.org/t/p/w500';
 
@@ -16,6 +16,14 @@ searchInput.addEventListener('keypress', (e) => {
     }
 });
 
+const homeBtn = document.getElementById('homeBtn');
+homeBtn.addEventListener('click', () => {
+    searchInput.value = '';
+    const newUrl = window.location.pathname;
+    window.history.pushState({}, '', newUrl);
+    loadPopularMovies();
+});
+
 async function searchMovies() {
     const query = searchInput.value.trim();
     
@@ -24,7 +32,6 @@ async function searchMovies() {
         return;
     }
     
-    // Simpan query ke URL
     const newUrl = `${window.location.pathname}?query=${encodeURIComponent(query)}`;
     window.history.pushState({}, '', newUrl);
     
@@ -131,10 +138,17 @@ async function loadPopularMovies() {
     
     showLoading();
     try {
-        const url = `${BASE_URL}/movie/popular?api_key=${API_KEY}&language=id-ID`;
-        const response = await fetch(url);
-        const data = await response.json();
-        displayMovies(data.results.slice(0, 8));
+        const [page1, page2] = await Promise.all([
+            fetch(`${BASE_URL}/movie/popular?api_key=${API_KEY}&language=id-ID&page=1`).then(res => res.json()),
+            fetch(`${BASE_URL}/movie/popular?api_key=${API_KEY}&language=id-ID&page=2`).then(res => res.json())
+        ]);
+        
+        let allMovies = [...page1.results, ...page2.results];
+        
+        allMovies = allMovies.slice(0, 50);
+        
+        displayMovies(allMovies);
+        
     } catch (error) {
         console.error('Gagal load film populer:', error);
         showError('Gagal memuat film populer.');

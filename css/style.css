@@ -74,6 +74,23 @@ h1 {
     transform: scale(1.02);
 }
 
+/* Tombol Beranda */
+.btn-home {
+    padding: 15px 25px;
+    border: none;
+    border-radius: 30px;
+    background: rgba(255,255,255,0.2);
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-home:hover {
+    background: rgba(255,255,255,0.3);
+    transform: scale(1.02);
+}
+
 /* Loading */
 .loading {
     text-align: center;
@@ -184,5 +201,9 @@ h1 {
     
     .movie-poster {
         height: 225px;
+    }
+    
+    .btn-home {
+        order: 3;
     }
 }
