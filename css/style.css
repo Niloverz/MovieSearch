@@ -214,6 +214,66 @@ h1 {
     color: white;
 }
 
+/* Genre Dropdown */
+.genre-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.genre-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: #1a1a2e;
+    border-radius: 15px;
+    padding: 10px;
+    min-width: 200px;
+    max-height: 300px;
+    overflow-y: auto;
+    z-index: 100;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+.genre-menu button {
+    display: block;
+    width: 100%;
+    padding: 10px 15px;
+    background: transparent;
+    border: none;
+    color: white;
+    text-align: left;
+    cursor: pointer;
+    border-radius: 10px;
+    font-size: 14px;
+}
+
+.genre-menu button:hover {
+    background: rgba(255,255,255,0.1);
+}
+
+.genre-menu button.active {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+}
+
+.genre-menu::-webkit-scrollbar {
+    width: 8px;
+}
+
+.genre-menu::-webkit-scrollbar-track {
+    background: rgba(255,255,255,0.1);
+    border-radius: 10px;
+}
+
+.genre-menu::-webkit-scrollbar-thumb {
+    background: #667eea;
+    border-radius: 10px;
+}
+
+.hidden {
+    display: none;
+}
+
 /* Responsive */
 @media (max-width: 600px) {
     .search-section {

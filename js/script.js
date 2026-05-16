@@ -8,8 +8,11 @@ const movieGrid = document.getElementById('movieGrid');
 const loadingState = document.getElementById('loadingState');
 const errorState = document.getElementById('errorState');
 
-let currentMovies = []; 
+let currentMovies = [];
+let currentMoviesOriginal = []; 
 let currentSort = 'popular'; 
+let genresList = []; 
+let selectedGenreId = null; 
 
 searchBtn.addEventListener('click', searchMovies);
 searchInput.addEventListener('keypress', (e) => {
@@ -25,7 +28,9 @@ if (homeBtn) {
         const newUrl = window.location.pathname;
         window.history.pushState({}, '', newUrl);
         currentSort = 'popular';
+        selectedGenreId = null;
         updateActiveFilter('popular');
+        highlightSelectedGenre(null);
         loadPopularMovies();
     });
 }
@@ -46,6 +51,97 @@ filterBtns.forEach(btn => {
         }
     });
 });
+
+function setupGenreDropdown() {
+    const genreBtn = document.getElementById('genreBtn');
+    const genreMenu = document.getElementById('genreMenu');
+    
+    if (genreBtn && genreMenu) {
+        genreBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            genreMenu.classList.toggle('hidden');
+        });
+        
+        document.addEventListener('click', (e) => {
+            if (!genreBtn.contains(e.target) && !genreMenu.contains(e.target)) {
+                genreMenu.classList.add('hidden');
+            }
+        });
+    }
+}
+
+async function fetchGenres() {
+    try {
+        const url = `${BASE_URL}/genre/movie/list?api_key=${API_KEY}&language=id-ID`;
+        const response = await fetch(url);
+        const data = await response.json();
+        genresList = data.genres;
+        renderGenreMenu();
+    } catch (error) {
+        console.error('Gagal mengambil genre:', error);
+    }
+}
+
+function renderGenreMenu() {
+    const genreMenu = document.getElementById('genreMenu');
+    if (!genreMenu) return;
+    
+    genreMenu.innerHTML = '';
+    
+    const allBtn = document.createElement('button');
+    allBtn.textContent = 'Semua Genre';
+    allBtn.addEventListener('click', () => {
+        selectedGenreId = null;
+        highlightSelectedGenre(null);
+        applyGenreFilter();
+        genreMenu.classList.add('hidden');
+    });
+    genreMenu.appendChild(allBtn);
+    
+    const separator = document.createElement('hr');
+    separator.style.margin = '5px 0';
+    separator.style.borderColor = 'rgba(255,255,255,0.1)';
+    genreMenu.appendChild(separator);
+    
+    genresList.forEach(genre => {
+        const btn = document.createElement('button');
+        btn.textContent = genre.name;
+        btn.dataset.genreId = genre.id;
+        btn.addEventListener('click', () => {
+            selectedGenreId = genre.id;
+            highlightSelectedGenre(genre.id);
+            applyGenreFilter();
+            genreMenu.classList.add('hidden');
+        });
+        genreMenu.appendChild(btn);
+    });
+}
+
+function highlightSelectedGenre(genreId) {
+    const buttons = document.querySelectorAll('#genreMenu button');
+    buttons.forEach(btn => {
+        if (btn.dataset.genreId && parseInt(btn.dataset.genreId) === genreId) {
+            btn.classList.add('active');
+        } else {
+            btn.classList.remove('active');
+        }
+    });
+}
+
+function applyGenreFilter() {
+    if (currentMoviesOriginal.length === 0) return;
+    
+    let filteredMovies = [...currentMoviesOriginal];
+    
+    if (selectedGenreId) {
+        filteredMovies = filteredMovies.filter(movie => 
+            movie.genre_ids && movie.genre_ids.includes(selectedGenreId)
+        );
+    }
+
+    currentMovies = [...filteredMovies];
+    applySortAndDisplay();
+}
 
 async function searchMovies() {
     const query = searchInput.value.trim();
@@ -77,6 +173,7 @@ async function performSearch(query) {
         if (data.results.length === 0) {
             showError('Film tidak ditemukan. Coba kata kunci lain.');
             currentMovies = [];
+            currentMoviesOriginal = [];
             return;
         }
         
@@ -86,6 +183,7 @@ async function performSearch(query) {
         console.error('Error:', error);
         showError('Terjadi kesalahan. Coba lagi nanti.');
         currentMovies = [];
+        currentMoviesOriginal = [];
     } finally {
         hideLoading();
     }
@@ -97,7 +195,10 @@ function getQueryFromUrl() {
 }
 
 function displayMovies(movies) {
+    currentMoviesOriginal = [...movies];
     currentMovies = [...movies];
+    selectedGenreId = null;
+    highlightSelectedGenre(null);
     applySortAndDisplay();
 }
 
@@ -127,6 +228,7 @@ function applySortAndDisplay() {
     }
     
     movieGrid.innerHTML = '';
+    
     sortedMovies.forEach(movie => {
         const card = createMovieCard(movie);
         movieGrid.appendChild(card);
@@ -229,6 +331,10 @@ async function loadPopularMovies() {
             }
         }
         
+        currentSort = 'popular';
+        selectedGenreId = null;
+        updateActiveFilter('popular');
+        highlightSelectedGenre(null);
         displayMovies(uniqueMovies);
         
     } catch (error) {
@@ -247,9 +353,13 @@ window.addEventListener('popstate', () => {
     } else {
         searchInput.value = '';
         currentSort = 'popular';
+        selectedGenreId = null;
         updateActiveFilter('popular');
+        highlightSelectedGenre(null);
         loadPopularMovies();
     }
 });
 
+fetchGenres();
+setupGenreDropdown();
 loadPopularMovies();
