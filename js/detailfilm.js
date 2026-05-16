@@ -1,4 +1,4 @@
-const API_KEY = '83469d836d083c530d69cb99ea058b66'; 
+const API_KEY = 'API_KEY'; 
 const BASE_URL = 'https://api.themoviedb.org/3';
 const IMAGE_URL = 'https://image.tmdb.org/t/p/w500';
 

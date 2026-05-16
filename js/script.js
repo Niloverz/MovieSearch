@@ -1,4 +1,4 @@
-const API_KEY = '83469d836d083c530d69cb99ea058b66'; 
+const API_KEY = 'API_KEY';
 const BASE_URL = 'https://api.themoviedb.org/3';
 const IMAGE_URL = 'https://image.tmdb.org/t/p/w500';
 
@@ -8,8 +8,10 @@ const movieGrid = document.getElementById('movieGrid');
 const loadingState = document.getElementById('loadingState');
 const errorState = document.getElementById('errorState');
 
-searchBtn.addEventListener('click', searchMovies);
+let currentMovies = []; 
+let currentSort = 'popular'; 
 
+searchBtn.addEventListener('click', searchMovies);
 searchInput.addEventListener('keypress', (e) => {
     if (e.key === 'Enter') {
         searchMovies();
@@ -17,11 +19,32 @@ searchInput.addEventListener('keypress', (e) => {
 });
 
 const homeBtn = document.getElementById('homeBtn');
-homeBtn.addEventListener('click', () => {
-    searchInput.value = '';
-    const newUrl = window.location.pathname;
-    window.history.pushState({}, '', newUrl);
-    loadPopularMovies();
+if (homeBtn) {
+    homeBtn.addEventListener('click', () => {
+        searchInput.value = '';
+        const newUrl = window.location.pathname;
+        window.history.pushState({}, '', newUrl);
+        currentSort = 'popular';
+        updateActiveFilter('popular');
+        loadPopularMovies();
+    });
+}
+
+const filterBtns = document.querySelectorAll('.filter-btn');
+filterBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+        const sortType = btn.dataset.sort;
+        if (!sortType) return;
+        
+        filterBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        
+        currentSort = sortType;
+        
+        if (currentMovies.length > 0) {
+            applySortAndDisplay();
+        }
+    });
 });
 
 async function searchMovies() {
@@ -53,6 +76,7 @@ async function performSearch(query) {
         
         if (data.results.length === 0) {
             showError('Film tidak ditemukan. Coba kata kunci lain.');
+            currentMovies = [];
             return;
         }
         
@@ -61,6 +85,7 @@ async function performSearch(query) {
     } catch (error) {
         console.error('Error:', error);
         showError('Terjadi kesalahan. Coba lagi nanti.');
+        currentMovies = [];
     } finally {
         hideLoading();
     }
@@ -72,35 +97,79 @@ function getQueryFromUrl() {
 }
 
 function displayMovies(movies) {
-    movieGrid.innerHTML = '';
+    currentMovies = [...movies];
+    applySortAndDisplay();
+}
+
+function applySortAndDisplay() {
+    let sortedMovies = [...currentMovies];
     
-    movies.forEach(movie => {
-        const card = document.createElement('div');
-        card.className = 'movie-card';
-        
-        let posterHtml = '';
-        if (movie.poster_path) {
-            posterHtml = `<img src="${IMAGE_URL}${movie.poster_path}" alt="${movie.title}" class="movie-poster">`;
-        } else {
-            posterHtml = `<div class="movie-poster-placeholder">🎬</div>`;
-        }
-        
-        const rating = movie.vote_average.toFixed(1);
-        
-        card.innerHTML = `
-            ${posterHtml}
-            <div class="movie-info">
-                <div class="movie-title">${escapeHtml(movie.title)}</div>
-                <div class="movie-year">${movie.release_date ? movie.release_date.split('-')[0] : 'Tidak diketahui'}</div>
-                <div class="movie-rating">⭐ ${rating}/10</div>
-            </div>
-        `;
-        
-       card.addEventListener('click', () => {
-            window.location.href = `detailfilm.html?id=${movie.id}`;
-    });
-        
+    switch(currentSort) {
+        case 'latest':
+            sortedMovies.sort((a, b) => {
+                const dateA = a.release_date ? new Date(a.release_date) : new Date(0);
+                const dateB = b.release_date ? new Date(b.release_date) : new Date(0);
+                return dateB - dateA;
+            });
+            break;
+        case 'oldest':
+            sortedMovies.sort((a, b) => {
+                const dateA = a.release_date ? new Date(a.release_date) : new Date(0);
+                const dateB = b.release_date ? new Date(b.release_date) : new Date(0);
+                return dateA - dateB;
+            });
+            break;
+        case 'rating':
+            sortedMovies.sort((a, b) => b.vote_average - a.vote_average);
+            break;
+        default:
+            sortedMovies = [...currentMovies];
+    }
+    
+    movieGrid.innerHTML = '';
+    sortedMovies.forEach(movie => {
+        const card = createMovieCard(movie);
         movieGrid.appendChild(card);
+    });
+}
+
+function createMovieCard(movie) {
+    const card = document.createElement('div');
+    card.className = 'movie-card';
+    
+    let posterHtml = '';
+    if (movie.poster_path) {
+        posterHtml = `<img src="${IMAGE_URL}${movie.poster_path}" alt="${movie.title}" class="movie-poster">`;
+    } else {
+        posterHtml = `<div class="movie-poster-placeholder">🎬</div>`;
+    }
+    
+    const rating = movie.vote_average.toFixed(1);
+    const year = movie.release_date ? movie.release_date.split('-')[0] : 'Tidak diketahui';
+    
+    card.innerHTML = `
+        ${posterHtml}
+        <div class="movie-info">
+            <div class="movie-title">${escapeHtml(movie.title)}</div>
+            <div class="movie-year">${year}</div>
+            <div class="movie-rating">⭐ ${rating}/10</div>
+        </div>
+    `;
+    
+    card.addEventListener('click', () => {
+        window.location.href = `detail.html?id=${movie.id}`;
+    });
+    
+    return card;
+}
+
+function updateActiveFilter(sortType) {
+    filterBtns.forEach(btn => {
+        if (btn.dataset.sort === sortType) {
+            btn.classList.add('active');
+        } else {
+            btn.classList.remove('active');
+        }
     });
 }
 
@@ -144,9 +213,10 @@ async function loadPopularMovies() {
         ]);
         
         let allMovies = [...page1.results, ...page2.results];
-        
         allMovies = allMovies.slice(0, 50);
         
+        currentSort = 'popular';
+        updateActiveFilter('popular');
         displayMovies(allMovies);
         
     } catch (error) {
@@ -164,6 +234,8 @@ window.addEventListener('popstate', () => {
         performSearch(query);
     } else {
         searchInput.value = '';
+        currentSort = 'popular';
+        updateActiveFilter('popular');
         loadPopularMovies();
     }
 });

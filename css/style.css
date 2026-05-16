@@ -184,6 +184,36 @@ h1 {
     display: none;
 }
 
+/* Filter Section */
+.filter-section {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 30px;
+}
+
+.filter-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 30px;
+    background: rgba(255,255,255,0.1);
+    color: white;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.3s;
+}
+
+.filter-btn:hover {
+    background: rgba(255,255,255,0.2);
+    transform: translateY(-2px);
+}
+
+.filter-btn.active {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+}
+
 /* Responsive */
 @media (max-width: 600px) {
     .search-section {
@@ -206,4 +236,5 @@ h1 {
     .btn-home {
         order: 3;
     }
+
 }
