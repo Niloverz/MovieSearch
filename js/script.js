@@ -157,7 +157,7 @@ function createMovieCard(movie) {
     `;
     
     card.addEventListener('click', () => {
-        window.location.href = `detail.html?id=${movie.id}`;
+        window.location.href = `detailfilm.html?id=${movie.id}`;
     });
     
     return card;
@@ -207,17 +207,29 @@ async function loadPopularMovies() {
     
     showLoading();
     try {
-        const [page1, page2] = await Promise.all([
+        const pages = await Promise.all([
             fetch(`${BASE_URL}/movie/popular?api_key=${API_KEY}&language=id-ID&page=1`).then(res => res.json()),
-            fetch(`${BASE_URL}/movie/popular?api_key=${API_KEY}&language=id-ID&page=2`).then(res => res.json())
+            fetch(`${BASE_URL}/movie/popular?api_key=${API_KEY}&language=id-ID&page=2`).then(res => res.json()),
+            fetch(`${BASE_URL}/movie/popular?api_key=${API_KEY}&language=id-ID&page=3`).then(res => res.json()),
+            fetch(`${BASE_URL}/movie/popular?api_key=${API_KEY}&language=id-ID&page=4`).then(res => res.json()),
+            fetch(`${BASE_URL}/movie/popular?api_key=${API_KEY}&language=id-ID&page=5`).then(res => res.json())
         ]);
         
-        let allMovies = [...page1.results, ...page2.results];
-        allMovies = allMovies.slice(0, 50);
+        let allMovies = [];
+        pages.forEach(page => {
+            allMovies = [...allMovies, ...page.results];
+        });
         
-        currentSort = 'popular';
-        updateActiveFilter('popular');
-        displayMovies(allMovies);
+        const uniqueMovies = [];
+        const seenIds = new Set();
+        for (const movie of allMovies) {
+            if (!seenIds.has(movie.id)) {
+                seenIds.add(movie.id);
+                uniqueMovies.push(movie);
+            }
+        }
+        
+        displayMovies(uniqueMovies);
         
     } catch (error) {
         console.error('Gagal load film populer:', error);
