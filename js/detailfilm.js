@@ -84,7 +84,11 @@ function showError() {
 }
 
 document.getElementById('backBtn').addEventListener('click', () => {
-    window.location.href = 'index.html';
+    if (document.referrer && document.referrer.includes('index.html')) {
+        window.location.href = document.referrer;
+    } else {
+        window.location.href = 'index.html';
+    }
 });
 
 document.addEventListener('DOMContentLoaded', loadMovieDetail);

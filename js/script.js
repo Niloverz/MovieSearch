@@ -20,22 +20,27 @@ async function searchMovies() {
     const query = searchInput.value.trim();
     
     if (query === '') {
-        showError('Masukkan judul film');
+        showError('Masukkan judul film terlebih dahulu!');
         return;
     }
     
+    // Simpan query ke URL
+    const newUrl = `${window.location.pathname}?query=${encodeURIComponent(query)}`;
+    window.history.pushState({}, '', newUrl);
+    
+    await performSearch(query);
+}
+
+async function performSearch(query) {
     showLoading();
     movieGrid.innerHTML = '';
     hideError();
     
     try {
         const url = `${BASE_URL}/search/movie?api_key=${API_KEY}&query=${encodeURIComponent(query)}&language=id-ID`;
-        
         const response = await fetch(url);
         
-        if (!response.ok) {
-            throw new Error('Gagal mengambil data');
-        }
+        if (!response.ok) throw new Error('Gagal mengambil data');
         
         const data = await response.json();
         
@@ -52,6 +57,11 @@ async function searchMovies() {
     } finally {
         hideLoading();
     }
+}
+
+function getQueryFromUrl() {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('query');
 }
 
 function displayMovies(movies) {
@@ -111,17 +121,37 @@ function escapeHtml(text) {
 }
 
 async function loadPopularMovies() {
+    const query = getQueryFromUrl();
+    
+    if (query) {
+        searchInput.value = query;
+        await performSearch(query);
+        return;
+    }
+    
     showLoading();
     try {
         const url = `${BASE_URL}/movie/popular?api_key=${API_KEY}&language=id-ID`;
         const response = await fetch(url);
         const data = await response.json();
-        displayMovies(data.results.slice(0, 8)); 
+        displayMovies(data.results.slice(0, 8));
     } catch (error) {
         console.error('Gagal load film populer:', error);
+        showError('Gagal memuat film populer.');
     } finally {
         hideLoading();
     }
 }
+
+window.addEventListener('popstate', () => {
+    const query = getQueryFromUrl();
+    if (query) {
+        searchInput.value = query;
+        performSearch(query);
+    } else {
+        searchInput.value = '';
+        loadPopularMovies();
+    }
+});
 
 loadPopularMovies();
