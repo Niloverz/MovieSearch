@@ -1,8 +1,5 @@
 Aplikasi pencarian film menggunakan TMDB API.  
 
-## Demo Live
-[https://niloverz-movie.netlify.app](https://niloverz-movie.netlify.app)
-
 ## Cara Mendapatkan API Key 
 Step 1: Daftar Akun TMDB
 1. Buka [https://www.themoviedb.org/signup](https://www.themoviedb.org/signup)
@@ -24,3 +21,4 @@ Setelah submit, akan mendapatkan API Key (v3 auth) lalu copy.
 ## Masukkan API Key ke Project
 1. Buka file `js/script.js` dan `js/detailfilm.js`
 2. Ganti dan paste ke 'API_KEY' dipaling atas dengan API yg sudah didapat tadi.
+3. Jalankan project
